@@ -1,6 +1,6 @@
 {
   "name": "warehouse-models",
-  "version": "5.3.0",
+  "version": "5.4.0",
   "description": "Datastar models for warehouse",
   "main": "lib/index.js",
   "scripts": {
