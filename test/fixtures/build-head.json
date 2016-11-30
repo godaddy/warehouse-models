@@ -1,0 +1,11 @@
+{
+  "buildId": "email!test!2.1!en-US",
+  "previousBuildId": "email!test!2.0!en-US",
+  "env": "test",
+  "name": "email",
+  "version": "2.1",
+  "locale": "en-US",
+  "fingerprints": ["b.gz", "b"],
+  "artifacts": ["b/email.js"],
+  "recommended": []
+}

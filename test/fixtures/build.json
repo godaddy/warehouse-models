@@ -1,0 +1,11 @@
+{
+  "buildId": "emaili!prod!2.1!en-Us",
+  "previousBuildId": "emaili!prod!2.0!en-US",
+  "locale": "en-US",
+  "env": "prod",
+  "name": "email",
+  "version": "2.1",
+  "fingerprints": ["a", "a.gz"],
+  "artifacts": ["a/email.js"],
+  "recommended": []
+}

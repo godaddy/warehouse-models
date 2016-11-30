@@ -1,0 +1,13 @@
+{
+  "buildId": "email!prod!2.1!en-US",
+  "url": "http://whatever.com/abc.js",
+  "env": "prod",
+  "fingerprint" : "abc",
+  "name": "email",
+  "filename": "email.js",
+  "source": "function() {}",
+  "sourcemap": "abc123",
+  "version": "2.1",
+  "locale": "en-US",
+  "shrinkwrap": {}
+}

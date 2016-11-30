@@ -1,0 +1,11 @@
+{
+  "name": "email",
+  "version": "2.0",
+  "main": "index.js",
+  "distTags": {
+    "prod": "abc"
+  },
+  "config": {
+    "locale": "en"
+  }
+}
