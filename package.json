@@ -42,6 +42,7 @@
     "bl": "^1.1.2",
     "diagnostics": "~1.0.1",
     "hyperquest": "~1.2.0",
+    "json-try-parse": "~1.0.0",
     "lodash.difference": "^3.2.2",
     "object-assign": "^4.0.1"
   }
