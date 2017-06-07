@@ -65,7 +65,7 @@ describe('warehouse-models (unit)', function () {
 
   it('should have a method to fetch and create a build payload from versioned content', function () {
     assume(dal.Version.prototype.forBuild).is.a('function');
-    assume(dal.Version.prototype.forBuild).to.equal(2);
+    assume(dal.Version.prototype.forBuild.length).to.equal(2);
   });
 
 });
