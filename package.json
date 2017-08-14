@@ -5,10 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "istanbul cover ./node_modules/.bin/_mocha -- test/*.test.js",
-    "eslint": "godaddy-js-style-eslint -c .eslintrc lib/ test/",
-    "jscs": "godaddy-js-style-jscs lib/ test/",
-    "lint": "npm run jscs && npm run eslint",
-    "pretest": "npm run lint"
+    "eslint": "eslint-godaddy -c .eslintrc lib/ test/",
+    "pretest": "npm run eslint"
   },
   "repository": {
     "type": "git",
