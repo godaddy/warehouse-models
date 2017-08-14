@@ -40,7 +40,7 @@ describe('registry-data (integration)', function () {
 
 
   before(function (done) {
-    if (process.env.DEBUG) {
+    if (process.env.DEBUG) { // eslint-disable-line no-process-env
       datastar.connection.on('queryStarted', function () {
         console.log.apply(console, arguments);
       });
