@@ -29,7 +29,7 @@ var PackageCache = models.PackageCache;
 
 describe('registry-data (integration)', function () {
   function assertAttachment(result) {
-    let file = result.name + '-' + result.version + '.tgz';
+    const file = result.name + '-' + result.version + '.tgz';
 
     assume(result._attachments).to.be.an('object');
     assume(result._attachments).to.have.property(file);
@@ -40,7 +40,7 @@ describe('registry-data (integration)', function () {
 
 
   before(function (done) {
-    if (process.env.DEBUG) {
+    if (process.env.DEBUG) { // eslint-disable-line no-process-env
       datastar.connection.on('queryStarted', function () {
         console.log.apply(console, arguments);
       });
@@ -170,8 +170,8 @@ describe('registry-data (integration)', function () {
         assume(result.artifacts.sort()).eql(BuildFixture.artifacts.sort());
         assume(result.recommended).to.be.an('array');
 
-        result.fetchFiles(function (err, files) {
-          assume(err).is.falsey();
+        result.fetchFiles(function (error, files) {
+          assume(error).is.falsey();
           assume(files).is.an('array');
           files.forEach(function (file) {
             assume(file).is.an('object');
@@ -251,8 +251,8 @@ describe('registry-data (integration)', function () {
         assume(result.artifacts.sort()).eql(BuildHeadFixture.artifacts.sort());
         assume(result.recommended).to.be.an('array');
 
-        result.fetchFiles(function (err, files) {
-          assume(err).is.falsey();
+        result.fetchFiles(function (error, files) {
+          assume(error).is.falsey();
           assume(files).is.an('array');
           files.forEach(function (file) {
             assume(file).is.an('object');
@@ -380,8 +380,8 @@ describe('registry-data (integration)', function () {
         //
         result.name = 'minimize';
         result.version = '1.7.0';
-        result.getAttachment('http://registry.npmjs.org/', function (err, result) {
-          assume(err).is.falsey();
+        result.getAttachment('http://registry.npmjs.org/', function (error, result) {
+          assume(error).is.falsey();
           assertAttachment(result);
           done();
         });
