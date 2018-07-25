@@ -1,0 +1,4 @@
+{
+  "pkg": "video_gallery",
+  "dependentOf": "video"
+}
