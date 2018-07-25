@@ -82,12 +82,43 @@ a build's configuration
 
 ### Dependent (`dependent`)
 
-A dependency graph where every packaged publish can ensure that any package that depedends on it can be updated. This should constantly be **updated on every publish.**
+A dependency graph where every packaged publish can ensure that any package that depends on it can be updated. This should constantly be **updated on every publish.**
 
 Column           | Type          | Summary
 ---------------- | ------------- | ------------
 name (pk)        | text          | Name of a package
 dependents       | set(text)     | Name of packages are **dependent on me**
+
+### Dependent Of (`dependent_of`)
+
+An inverse of `dependent` in order for a dependent package to see what its parent is.
+
+Column           | Type          | Summary
+---------------- | ------------- | ------------
+pkg (pk)         | text          | Name of a package
+dependent_of     | text          | Name of the parent package
+
+### Release Line (`release_line`)
+
+Represent all the necessary information for a given package/version to know what needs to be deployed, considering all its dependents as well. (When combined with `Release Line Dependents`)
+
+Column            | Type        | Summary
+----------------- | ----------- | ------------
+pkg (pk)          |   text      | Name of a package
+previousVersion   |   text      | The previous version number
+version           |   text      | The current version number or `latest`
+
+### Release Line Dependents (`release_line_dep`)
+
+Represent all the necessary information for a given package/version to know what needs to be deployed, considering all its dependents as well. (When combined with `Release Line`)
+
+Column            | Type        | Summary
+----------------- | ----------- | ------------
+pkg (pk)          |   text      | Name of a package
+previousVersion   |   text      | The previous version number
+version           |   text      | The current version number
+dependent         |   text      | The dependent package
+dependentVersion  |   text      | The dependent package version
 
 ### Version (`version`)
 
