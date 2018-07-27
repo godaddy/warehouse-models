@@ -1,35 +1,32 @@
 'use strict';
 
 /* eslint max-nested-callbacks: 0 */
-var config = require('./config.json');
-var Datastar = require('datastar');
-var warehouseModels = require('..');
-var assume = require('assume');
-var async = require('async');
-var clone = require('clone');
+const config = require('./config.json');
+const Datastar = require('datastar');
+const warehouseModels = require('..');
+const assume = require('assume');
+const async = require('async');
+const clone = require('clone');
 
-var BuildFixture = require('./fixtures/build.json');
-var BuildFileFixture = require('./fixtures/build-file.json');
-var BuildHeadFixture = require('./fixtures/build-head.json');
-var DependentFixture = require('./fixtures/dependent.json');
-var VersionFixture = require('./fixtures/version.json');
-var PackageFixture = require('./fixtures/package.json');
+const BuildFixture = require('./fixtures/build.json');
+const BuildFileFixture = require('./fixtures/build-file.json');
+const BuildHeadFixture = require('./fixtures/build-head.json');
+const DependentFixture = require('./fixtures/dependent.json');
+const DependentOfFixture = require('./fixtures/dependent-of.json');
+const ReleaseLineFixture = require('./fixtures/release-line.json');
+const ReleaseLineDepFixture = require('./fixtures/release-line-dep.json');
+const VersionFixture = require('./fixtures/version.json');
+const PackageFixture = require('./fixtures/package.json');
 
 config.consistency = 'quorum';
-var datastar = new Datastar(config);
-var models = warehouseModels(datastar);
+const datastar = new Datastar(config);
+const models = warehouseModels(datastar);
 
-var Build = models.Build;
-var BuildFile = models.BuildFile;
-var BuildHead = models.BuildHead;
-var Dependent  = models.Dependent;
-var Version = models.Version;
-var Package = models.Package;
-var PackageCache = models.PackageCache;
+const { Build, BuildFile, BuildHead, Dependent, DependentOf, ReleaseLine, ReleaseLineDep, Version, Package, PackageCache } = models;
 
 describe('registry-data (integration)', function () {
   function assertAttachment(result) {
-    const file = result.name + '-' + result.version + '.tgz';
+    const file = `${result.name}-${result.version}.tgz`;
 
     assume(result._attachments).to.be.an('object');
     assume(result._attachments).to.have.property(file);
@@ -111,7 +108,7 @@ describe('registry-data (integration)', function () {
   });
 
   describe('build', function () {
-    var file = clone(BuildFileFixture);
+    const file = clone(BuildFileFixture);
     file.fingerprint = 'a.gz';
 
     before(function (done) {
@@ -148,7 +145,7 @@ describe('registry-data (integration)', function () {
     });
 
     it('should find all builds with a findAll', function (done) {
-      var conditions = clone(BuildFixture);
+      const conditions = clone(BuildFixture);
       delete conditions.locale;
       Build.findAll(conditions, function (err, results) {
         assume(err).is.falsey();
@@ -183,7 +180,7 @@ describe('registry-data (integration)', function () {
     });
 
     it('returns a falsey value for an unknown id', function (done) {
-      var ent = clone(BuildFixture);
+      const ent = clone(BuildFixture);
       ent.version = '0.9.9';
       Build.findOne(ent, function (err, result) {
         if (err) return done(err);
@@ -203,7 +200,7 @@ describe('registry-data (integration)', function () {
 
 
   describe('buildHead', function () {
-    var file = clone(BuildFileFixture);
+    const file = clone(BuildFileFixture);
     file.fingerprint = 'b.gz';
 
     before(function (done) {
@@ -327,7 +324,7 @@ describe('registry-data (integration)', function () {
       });
     });
 
-    it('deletes the version model', function (done) {
+    it('deletes the dependent model', function (done) {
       Dependent.remove({
         name: DependentFixture.name
       }, function (err) {
@@ -336,6 +333,173 @@ describe('registry-data (integration)', function () {
       });
     });
 
+  });
+
+  describe('dependent-of', function () {
+
+    after(function (done) {
+      DependentOf.dropTables(done);
+    });
+
+    it('ensures there is a dependent_of table', function (done) {
+      DependentOf.ensureTables(function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+
+    it('creates a dependent_of model', function (done) {
+      DependentOf.create(DependentOfFixture, function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+
+    it('finds the dependent_of model', function (done) {
+      DependentOf.findOne({
+        pkg: DependentOfFixture.pkg
+      }, function (err, result) {
+
+        assume(err).is.falsey();
+        assume(result.pkg).eql(DependentOfFixture.pkg);
+        assume(result.dependentOf).eql(DependentOfFixture.dependentOf);
+        done();
+      });
+    });
+
+    it('returns a falsey value for an unknown id', function (done) {
+      DependentOf.findOne({
+        pkg: DependentOfFixture.pkg + 'bah'
+      }, function (err, result) {
+        if (err) return done(err);
+        assume(result).is.falsey();
+        done();
+      });
+    });
+
+    it('deletes the dependent_of model', function (done) {
+      DependentOf.remove({
+        pkg: DependentOfFixture.pkg
+      }, function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+  });
+
+  describe('release-line', function () {
+
+    after(function (done) {
+      ReleaseLine.dropTables(done);
+    });
+
+    it('ensures there is a release_line table', function (done) {
+      ReleaseLine.ensureTables(function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+
+    it('creates a release line model', function (done) {
+      ReleaseLine.create(ReleaseLineFixture, function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+
+    it('finds the release line model', function (done) {
+      ReleaseLine.findOne({
+        pkg: ReleaseLineFixture.pkg,
+        version: ReleaseLineFixture.version
+      }, function (err, result) {
+        console.log(err);
+
+        assume(err).is.falsey();
+        assume(result.pkg).eql(ReleaseLineFixture.pkg);
+        assume(result.previousVersion).eql(ReleaseLineFixture.previousVersion);
+        assume(result.version).eql(ReleaseLineFixture.version);
+        done();
+      });
+    });
+
+    it('returns a falsey value for an unknown id', function (done) {
+      ReleaseLine.findOne({
+        pkg: ReleaseLineFixture.pkg + 'bah',
+        version: ReleaseLineFixture.version
+      }, function (err, result) {
+        if (err) return done(err);
+        assume(result).is.falsey();
+        done();
+      });
+    });
+
+    it('deletes the release line model', function (done) {
+      ReleaseLine.remove({
+        pkg: ReleaseLineFixture.pkg,
+        version: ReleaseLineFixture.version
+      }, function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+  });
+
+  describe('release-line-dep', function () {
+
+    after(function (done) {
+      ReleaseLineDep.dropTables(done);
+    });
+
+    it('ensures there is a dependent_of table', function (done) {
+      ReleaseLineDep.ensureTables(function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+
+    it('creates a dependent_of model', function (done) {
+      ReleaseLineDep.create(ReleaseLineDepFixture, function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+
+    it('finds the dependent_of model', function (done) {
+      ReleaseLineDep.findOne({
+        pkg: ReleaseLineDepFixture.pkg,
+        version: ReleaseLineDepFixture.version
+      }, function (err, result) {
+
+        assume(err).is.falsey();
+        assume(result.pkg).eql(ReleaseLineDepFixture.pkg);
+        assume(result.previousVersion).eql(ReleaseLineDepFixture.previousVersion);
+        assume(result.version).eql(ReleaseLineDepFixture.version);
+        assume(result.dependent).eql(ReleaseLineDepFixture.dependent);
+        assume(result.dependentVersion).eql(ReleaseLineDepFixture.dependentVersion);
+        done();
+      });
+    });
+
+    it('returns a falsey value for an unknown id', function (done) {
+      ReleaseLineDep.findOne({
+        pkg: ReleaseLineDepFixture.pkg + 'bah',
+        version: ReleaseLineDepFixture.version
+      }, function (err, result) {
+        if (err) return done(err);
+        assume(result).is.falsey();
+        done();
+      });
+    });
+
+    it('deletes the dependent_of model', function (done) {
+      ReleaseLineDep.remove({
+        pkg: ReleaseLineDepFixture.pkg,
+        version: ReleaseLineDepFixture.version
+      }, function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
   });
 
   describe('version', function () {

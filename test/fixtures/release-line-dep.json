@@ -1,0 +1,7 @@
+{
+  "pkg": "my-package",
+  "previousVersion": "0.1.0",
+  "version": "1.0.0",
+  "dependent": "my-other-package",
+  "dependentVersion": "2.0.0"
+}
