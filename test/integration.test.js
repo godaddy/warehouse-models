@@ -22,7 +22,7 @@ config.consistency = 'quorum';
 const datastar = new Datastar(config);
 const models = warehouseModels(datastar);
 
-const { Build, BuildFile, BuildHead, Dependent, DependentOf, ReleaseLine, ReleaseLineDep, Version, Package, PackageCache } = models;
+const { Build, BuildFile, BuildHead, Dependent, DependentOf, ReleaseLine, ReleaseLineHead, ReleaseLineDep, Version, Package, PackageCache } = models;
 
 describe('registry-data (integration)', function () {
   function assertAttachment(result) {
@@ -412,7 +412,6 @@ describe('registry-data (integration)', function () {
         pkg: ReleaseLineFixture.pkg,
         version: ReleaseLineFixture.version
       }, function (err, result) {
-        console.log(err);
 
         assume(err).is.falsey();
         assume(result.pkg).eql(ReleaseLineFixture.pkg);
@@ -437,6 +436,59 @@ describe('registry-data (integration)', function () {
       ReleaseLine.remove({
         pkg: ReleaseLineFixture.pkg,
         version: ReleaseLineFixture.version
+      }, function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+  });
+
+  describe('release-line-head', function () {
+
+    after(function (done) {
+      ReleaseLineHead.dropTables(done);
+    });
+
+    it('ensures there is a release_line table', function (done) {
+      ReleaseLineHead.ensureTables(function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+
+    it('creates a release line model', function (done) {
+      ReleaseLineHead.create(ReleaseLineFixture, function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+
+    it('finds the release line model', function (done) {
+      ReleaseLineHead.findOne({
+        pkg: ReleaseLineFixture.pkg
+      }, function (err, result) {
+
+        assume(err).is.falsey();
+        assume(result.pkg).eql(ReleaseLineFixture.pkg);
+        assume(result.previousVersion).eql(ReleaseLineFixture.previousVersion);
+        assume(result.version).eql(ReleaseLineFixture.version);
+        done();
+      });
+    });
+
+    it('returns a falsey value for an unknown id', function (done) {
+      ReleaseLineHead.findOne({
+        pkg: ReleaseLineFixture.pkg + 'bah'
+      }, function (err, result) {
+        if (err) return done(err);
+        assume(result).is.falsey();
+        done();
+      });
+    });
+
+    it('deletes the release line model', function (done) {
+      ReleaseLineHead.remove({
+        pkg: ReleaseLineFixture.pkg
       }, function (err) {
         assume(err).is.falsey();
         done();
