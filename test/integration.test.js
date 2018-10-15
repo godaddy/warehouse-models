@@ -49,6 +49,23 @@ describe('registry-data (integration)', function () {
     datastar.close(done);
   });
 
+  describe('models', function () {
+    this.timeout(3E5);
+    it('ensures all tables exist', function (done) {
+      models.ensure(err => {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+
+    it('drops existing tables', function (done) {
+      models.drop(err => {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+  });
+
   describe('buildFile', function () {
 
     after(function (done) {
