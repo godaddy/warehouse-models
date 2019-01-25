@@ -25,10 +25,10 @@ exports.packageStrip = {
 };
 
 exports.buildFile = {
-  array: [{ source: new Buffer('function() { return what }', 'utf8') }],
+  array: [{ source: Buffer.from('function() { return what }', 'utf8') }],
   object: {
-    source: new Buffer('module.exports = function (options, callback) {}', 'utf8'),
-    sourcemap: new Buffer('function foo() { var bar = false; return bar; }', 'utf8')
+    source: Buffer.from('module.exports = function (options, callback) {}', 'utf8'),
+    sourcemap: Buffer.from('function foo() { var bar = false; return bar; }', 'utf8')
   }
 };
 
