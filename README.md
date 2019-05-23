@@ -190,6 +190,8 @@ optional_dependencies| map<text, text> | any optional dependencies
 
 ## Test
 
+Ensure you have [Cassandra] running local.
+
 ```sh
 npm test
 ```
