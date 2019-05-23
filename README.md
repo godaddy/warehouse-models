@@ -57,7 +57,8 @@ a build's configuration
 
 ### Build File (`build_file`)
 
-Represent an individual file (unit) that is built during the build of an entire package.
+Represent an individual file (unit) that is built during the build of an
+entire package.
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
@@ -78,7 +79,8 @@ filename          |   text      | given filename for the build-file
 
 ### Build Head (`build_head`)
 
-Represent the head build version of an entire package. On an npm install, the env will have to be passed in.
+Represent the head build version of an entire package.
+On an `npm install`, the env will have to be passed in.
 
 Column             | Type             | Summary
 ------------------ | ---------------- | ------------
@@ -95,7 +97,9 @@ a build's configuration
 
 ### Dependent (`dependent`)
 
-A dependency graph where every packaged publish can ensure that any package that depends on it can be updated. This should constantly be **updated on every publish.**
+A dependency graph where every packaged publish can ensure that any package
+that depends on it can be updated. This should constantly be **updated on
+every publish.**
 
 Column           | Type          | Summary
 ---------------- | ------------- | ------------
@@ -104,7 +108,8 @@ dependents       | set(text)     | Name of packages are **dependent on me**
 
 ### Dependent Of (`dependent_of`)
 
-An inverse of `dependent` in order for a dependent package to see what its parent is.
+An inverse of `dependent` in order for a dependent package to see what its
+parent is.
 
 Column           | Type          | Summary
 ---------------- | ------------- | ------------
@@ -113,7 +118,9 @@ dependent_of     | text          | Name of the parent package
 
 ### Release Line (`release_line`)
 
-Represent all the necessary information for a given package/version to know what needs to be deployed, considering all its dependents as well. (When combined with `Release Line Dependents`)
+Represent all the necessary information for a given package/version to know
+what needs to be deployed, considering all its dependents as well.
+(When combined with `Release Line Dependents`)
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
@@ -123,7 +130,9 @@ version           |   text      | The current version number or `latest`
 
 ### Release Line Dependents (`release_line_dep`)
 
-Represent all the necessary information for a given package/version to know what needs to be deployed, considering all its dependents as well. (When combined with `Release Line`)
+Represent all the necessary information for a given package/version to know
+what needs to be deployed, considering all its dependents as well.
+(When combined with `Release Line`)
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
@@ -135,7 +144,10 @@ dependentVersion  |   text      | The dependent package version
 
 ### Version (`version`)
 
-Records of every npm publish of a package to the registry. Mostly needed for npm install from the builder, as it will npm install a specific tag. That tag will be tied to a specific version (look at the package table). A lookup will occur against the version table afterwards to send down the right package.json.
+Records of every npm publish of a package to the registry. Mostly needed for
+npm install from the builder, as it will npm install a specific tag. That tag
+will be tied to a specific version (look at the package table). A lookup will
+occur against the version table afterwards to send down the `package.json`.
 
 Column           | Type        | Summary
 ---------------- | ----------- | ------------
