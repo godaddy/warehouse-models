@@ -5,6 +5,7 @@
 [![npm Downloads](https://img.shields.io/npm/dm/warehouse-models.svg?style=flat-square)](https://npmcharts.com/compare/warehouse-models?minimal=true)
 [![Build Status](https://travis-ci.org/warehouseai/warehouse-models.svg?branch=master)](https://travis-ci.org/warehouseai/warehouse-models)
 [![Dependencies](https://img.shields.io/david/warehouseai/warehouse-models.svg?style=flat-square)](https://github.com/warehouseai/warehouse-models/blob/master/package.json)
+
 Data models for the [Warehouse][warehouse.ai]. Built on top of [Cassandra] and
 [datastar].
 
