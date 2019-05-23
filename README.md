@@ -1,29 +1,42 @@
-# warehouse-models
-Data models for the [Warehouse][warehouse.ai]. Built on top of Cassandra and Datastar.
+# `warehouse-models`
 
-## API Documentation
+[![Version npm](https://img.shields.io/npm/v/warehouse-models.svg?style=flat-square)](https://www.npmjs.com/package/warehouse-models)
+[![License](https://img.shields.io/npm/l/warehouse-models.svg?style=flat-square)](https://github.com/warehouseai/warehouse-models/blob/master/LICENSE)
+[![npm Downloads](https://img.shields.io/npm/dm/warehouse-models.svg?style=flat-square)](https://npmcharts.com/compare/warehouse-models?minimal=true)
+[![Build Status](https://travis-ci.org/warehouseai/warehouse-models.svg?branch=master)](https://travis-ci.org/warehouseai/warehouse-models)
+[![Dependencies](https://img.shields.io/david/warehouseai/warehouse-models.svg?style=flat-square)](https://github.com/warehouseai/warehouse-models/blob/master/package.json)
+Data models for the [Warehouse][warehouse.ai]. Built on top of [Cassandra] and
+[datastar].
 
-All of the objects returned from this module have the same api as [`datastar`](https://github.com/godaddy/datastar) with the schemas as mentioned later.
+## Install
 
-### Example
+```bash
+npm install --save warehouse-models
+```
+
+## Usage
+
+All of the objects returned from this module have the same api as
+[`datastar`][datastar] with the schemas as mentioned later.
 
 ```js
-var datastar = require('datastar')({ /* connection config */ }).connect();
-var models = require('warehouse-models')(datastar);
+const datastar = require('datastar')({ /* connection config */ }).connect();
+const models = require('warehouse-models')(datastar);
 
 ...
 // from datastar.define we get...
-var Build = models.Build;
-var Version = models.Version;
+const Build = models.Build;
+const Version = models.Version;
 ...
 
 Build.findFirst({ ... }, function (err, data) { .... });
 
 ```
 
-## Schemas
+## API
 
-All schemas for the API documentation are written using [`datastar`'s](https://github.com/godaddy/datastar) notation.
+All schemas for the API documentation are written using
+[`datastar`'s][datastar] notation.
 
 ### Build (`build`)
 
@@ -133,14 +146,15 @@ value            | text        | Full json sent of an npm publish
 
 ### Package (`package`)
 
-Represent an entire published packaged (`package.json`) to the registry. Because the amount of package.json could be infinite, only important columns are described.
+Represent an entire published packaged (`package.json`) to the registry.
+Because the number of properties in `package.json` could be infinite,
+only relevant columns are described.
 
-Examples of package.json
+Examples of `package.json`
 
-* [Express](https://registry.npmjs.org/express/latest)
-* [Express 2](https://registry.npmjs.org/express)
-* [NPM](https://docs.npmjs.com/files/package.json)
-* [Nodejitsu](http://browsenpm.org/package.json)
+* [Warehouse.ai][wrhs]
+* [Express]
+* [npm]
 
 Column               | Type            | Summary
 -------------------- | --------------- | ------------
@@ -162,13 +176,15 @@ dev_dependencies     | map<text, text> | DevDeps of package
 peer_dependencies    | map<text, text> | peerDeps of package
 optional_dependencies| map<text, text> | any optional dependencies
 
+## Test
 
-## Tests
 ```sh
 npm test
 ```
 
-## License
-MIT
-
+[wrhs]: https://registry.npmjs.org/warehouse.ai/latest
+[Express]: https://registry.npmjs.org/express/latest
+[npm]: https://docs.npmjs.com/files/package.json
 [warehouse.ai]: https://github.com/godaddy/warehouse.ai
+[datastar]: https://github.com/godaddy/datastar
+[Cassandra]: https://cassandra.apache.org/
