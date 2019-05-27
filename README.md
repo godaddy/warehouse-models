@@ -6,7 +6,7 @@
 [![Build Status](https://travis-ci.org/warehouseai/warehouse-models.svg?branch=master)](https://travis-ci.org/warehouseai/warehouse-models)
 [![Dependencies](https://img.shields.io/david/warehouseai/warehouse-models.svg?style=flat-square)](https://github.com/warehouseai/warehouse-models/blob/master/package.json)
 
-Data models for the [Warehouse][warehouse.ai]. Built on top of [Cassandra] and
+Data models for [Warehouse.ai]. Built on top of [Cassandra] and
 [datastar].
 
 ## Install
