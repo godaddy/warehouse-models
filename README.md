@@ -1,29 +1,43 @@
-# warehouse-models
-Data models for the [Warehouse][warehouse.ai]. Built on top of Cassandra and Datastar.
+# `warehouse-models`
 
-## API Documentation
+[![Version npm](https://img.shields.io/npm/v/warehouse-models.svg?style=flat-square)](https://www.npmjs.com/package/warehouse-models)
+[![License](https://img.shields.io/npm/l/warehouse-models.svg?style=flat-square)](https://github.com/warehouseai/warehouse-models/blob/master/LICENSE)
+[![npm Downloads](https://img.shields.io/npm/dm/warehouse-models.svg?style=flat-square)](https://npmcharts.com/compare/warehouse-models?minimal=true)
+[![Build Status](https://travis-ci.org/warehouseai/warehouse-models.svg?branch=master)](https://travis-ci.org/warehouseai/warehouse-models)
+[![Dependencies](https://img.shields.io/david/warehouseai/warehouse-models.svg?style=flat-square)](https://github.com/warehouseai/warehouse-models/blob/master/package.json)
 
-All of the objects returned from this module have the same api as [`datastar`](https://github.com/godaddy/datastar) with the schemas as mentioned later.
+Data models for [Warehouse.ai]. Built on top of [Cassandra] and
+[datastar].
 
-### Example
+## Install
+
+```bash
+npm install --save warehouse-models
+```
+
+## Usage
+
+All of the objects returned from this module have the same api as
+[`datastar`][datastar] with the schemas as mentioned later.
 
 ```js
-var datastar = require('datastar')({ /* connection config */ }).connect();
-var models = require('warehouse-models')(datastar);
+const datastar = require('datastar')({ /* connection config */ }).connect();
+const models = require('warehouse-models')(datastar);
 
 ...
 // from datastar.define we get...
-var Build = models.Build;
-var Version = models.Version;
+const Build = models.Build;
+const Version = models.Version;
 ...
 
 Build.findFirst({ ... }, function (err, data) { .... });
 
 ```
 
-## Schemas
+## API
 
-All schemas for the API documentation are written using [`datastar`'s](https://github.com/godaddy/datastar) notation.
+All schemas for the API documentation are written using
+[`datastar`'s][datastar] notation.
 
 ### Build (`build`)
 
@@ -44,7 +58,8 @@ a build's configuration
 
 ### Build File (`build_file`)
 
-Represent an individual file (unit) that is built during the build of an entire package.
+Represent an individual file (unit) that is built during the build of an
+entire package.
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
@@ -65,7 +80,8 @@ filename          |   text      | given filename for the build-file
 
 ### Build Head (`build_head`)
 
-Represent the head build version of an entire package. On an npm install, the env will have to be passed in.
+Represent the head build version of an entire package.
+On an `npm install`, the env will have to be passed in.
 
 Column             | Type             | Summary
 ------------------ | ---------------- | ------------
@@ -82,7 +98,9 @@ a build's configuration
 
 ### Dependent (`dependent`)
 
-A dependency graph where every packaged publish can ensure that any package that depends on it can be updated. This should constantly be **updated on every publish.**
+A dependency graph where every packaged publish can ensure that any package
+that depends on it can be updated. This should constantly be **updated on
+every publish.**
 
 Column           | Type          | Summary
 ---------------- | ------------- | ------------
@@ -91,7 +109,8 @@ dependents       | set(text)     | Name of packages are **dependent on me**
 
 ### Dependent Of (`dependent_of`)
 
-An inverse of `dependent` in order for a dependent package to see what its parent is.
+An inverse of `dependent` in order for a dependent package to see what its
+parent is.
 
 Column           | Type          | Summary
 ---------------- | ------------- | ------------
@@ -100,7 +119,9 @@ dependent_of     | text          | Name of the parent package
 
 ### Release Line (`release_line`)
 
-Represent all the necessary information for a given package/version to know what needs to be deployed, considering all its dependents as well. (When combined with `Release Line Dependents`)
+Represent all the necessary information for a given package/version to know
+what needs to be deployed, considering all its dependents as well.
+(When combined with `Release Line Dependents`)
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
@@ -110,7 +131,9 @@ version           |   text      | The current version number or `latest`
 
 ### Release Line Dependents (`release_line_dep`)
 
-Represent all the necessary information for a given package/version to know what needs to be deployed, considering all its dependents as well. (When combined with `Release Line`)
+Represent all the necessary information for a given package/version to know
+what needs to be deployed, considering all its dependents as well.
+(When combined with `Release Line`)
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
@@ -122,7 +145,10 @@ dependentVersion  |   text      | The dependent package version
 
 ### Version (`version`)
 
-Records of every npm publish of a package to the registry. Mostly needed for npm install from the builder, as it will npm install a specific tag. That tag will be tied to a specific version (look at the package table). A lookup will occur against the version table afterwards to send down the right package.json.
+Records of every npm publish of a package to the registry. Mostly needed for
+npm install from the builder, as it will npm install a specific tag. That tag
+will be tied to a specific version (look at the package table). A lookup will
+occur against the version table afterwards to send down the `package.json`.
 
 Column           | Type        | Summary
 ---------------- | ----------- | ------------
@@ -133,14 +159,15 @@ value            | text        | Full json sent of an npm publish
 
 ### Package (`package`)
 
-Represent an entire published packaged (`package.json`) to the registry. Because the amount of package.json could be infinite, only important columns are described.
+Represent an entire published packaged (`package.json`) to the registry.
+Because the number of properties in `package.json` could be infinite,
+only relevant columns are described.
 
-Examples of package.json
+Examples of `package.json`
 
-* [Express](https://registry.npmjs.org/express/latest)
-* [Express 2](https://registry.npmjs.org/express)
-* [NPM](https://docs.npmjs.com/files/package.json)
-* [Nodejitsu](http://browsenpm.org/package.json)
+* [Warehouse.ai][wrhs]
+* [Express]
+* [npm]
 
 Column               | Type            | Summary
 -------------------- | --------------- | ------------
@@ -162,13 +189,17 @@ dev_dependencies     | map<text, text> | DevDeps of package
 peer_dependencies    | map<text, text> | peerDeps of package
 optional_dependencies| map<text, text> | any optional dependencies
 
+## Test
 
-## Tests
+Ensure you have [Cassandra] running local.
+
 ```sh
 npm test
 ```
 
-## License
-MIT
-
+[wrhs]: https://registry.npmjs.org/warehouse.ai/latest
+[Express]: https://registry.npmjs.org/express/latest
+[npm]: https://docs.npmjs.com/files/package.json
 [warehouse.ai]: https://github.com/godaddy/warehouse.ai
+[datastar]: https://github.com/godaddy/datastar
+[Cassandra]: https://cassandra.apache.org/
