@@ -45,16 +45,19 @@ Represent an individual build of a package.
 
 Column             | Type             | Summary
 ------------------ | ---------------- | ------------
-build_id (pk)      |  text            | A build's unique id
-previous_build_id  |  text            | Hold a reference to the previous build id
-rollback_build_ids |  map<text, text> | timestamp string mapped to the rollback id
-env                |  text            | What enviroment is this build made for (dev, test, etc.)
-name               |  text            | What package has been built
-version            |  text            | What version of a package does this build represent
-fingerprints       |  set<text>       | Primary keys for `build_files`, represents the unique contents of the file
-artifacts          |  set<text>       | fingerprint/file-name
-recommended        |  set<text>       | Possible reduced set of artifacts based
-a build's configuration
+env (pk)           | text             | What environment is this build made for (dev, test, etc.)
+name (pk)          | text             | What package has been built
+version (pk)       | text             | What version of a package does this build represent
+build_id           | text             | A build's unique id
+previous_build_id  | text             | Hold a reference to the previous build id
+rollback_build_ids | map<text, text>  | timestamp string mapped to the rollback id
+locale (ck)        | text             | What locale this was built for
+create_date        | timestamp        | Time of creation
+value              | text             | ???
+cdn_url            | text             | URL of CDN to be used as a base for all the artifacts
+fingerprints       | set<text>        | Primary keys for `build_files`, represents the unique contents of the file
+artifacts          | set<text>        | fingerprint/file-name
+recommended        | set<text>        | Possible reduced set of artifacts based on a build's configuration
 
 ### Build File (`build_file`)
 
@@ -63,20 +66,19 @@ entire package.
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
-fingerprint (pk)  |   text      | The actual fingerprint of a file, like a md5 hash etc.
-build_id          |   text      | The build_id associated with the build file
-url               |   text      | CDN URL for the build_file
-create_date       |   timestamp | Time of creation
-env               |   text      | What enviroment is this file built for
-locale            |   text      | What locale was this file built for
-name              |   text      | Name of a built file
-version           |   text      | Version of the package the file is built for
-extension         |   text      | .js, .css. resource type extension
-source            |   blob      | Entire source of a built file
-sourcemap         |   blob      | Sourcemap of a built file
-shrinkwrap        |   json      | JSON of package requirements
-filename          |   text      | given filename for the build-file
-
+fingerprint (pk)  | text        | The actual fingerprint of a file, like a md5 hash etc.
+build_id          | text        | The build_id associated with the build file
+url               | text        | CDN URL for the build_file
+create_date       | timestamp   | Time of creation
+env               | text        | What environment is this file built for
+locale            | text        | What locale was this file built for
+name              | text        | Name of a built file
+version           | text        | Version of the package the file is built for
+extension         | text        | .js, .css. resource type extension
+source            | blob        | Entire source of a built file
+sourcemap         | blob        | Sourcemap of a built file
+shrinkwrap        | json        | JSON of package requirements
+filename          | text        | given filename for the build-file
 
 ### Build Head (`build_head`)
 
@@ -85,16 +87,19 @@ On an `npm install`, the env will have to be passed in.
 
 Column             | Type             | Summary
 ------------------ | ---------------- | ------------
-build_id (pk)      |  text            | A build's unique id
-previous_build_id  |  text            | Hold a reference to the previous build id
-rollback_build_ids |  map<text, text> | timestamp string mapped to the rollback id
-env                |  text            | What enviroment is this build made for (dev, test, etc.)
-name               |  text            | What package has been build
-version            |  text            | What version of a package does this build represent
-fingerprints       |  set<text>       | Primary keys for `build_files`, represents the unique contents of the file
-artifacts          |  set<text>       | fingerprint/file-name
-recommended        |  set<text>       | Possible reduced set of artifacts based
-a build's configuration
+name (pk)          | text             | What package has been build
+env (pk)           | text             | What environment is this build made for (dev, test, etc.)
+build_id           | text             | A build's unique id
+previous_build_id  | text             | Hold a reference to the previous build id
+rollback_build_ids | map<text, text>  | timestamp string mapped to the rollback id
+create_date        | timestamp        | Time of creation
+udpate_date        | timestamp        | Time of update
+version            | text             | What version of a package does this build represent
+locale (ck)        | text             | What locale this was built for
+cdn_url            | text             | URL of CDN to be used as a base for all the artifacts
+fingerprints       | set<text>        | Primary keys for `build_files`, represents the unique contents of the file
+artifacts          | set<text>        | fingerprint/file-name
+recommended        | set<text>        | Possible reduced set of artifacts based on a build's configuration
 
 ### Dependent (`dependent`)
 
@@ -125,9 +130,9 @@ what needs to be deployed, considering all its dependents as well.
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
-pkg (pk)          |   text      | Name of a package
-previousVersion   |   text      | The previous version number
-version           |   text      | The current version number or `latest`
+pkg (pk)          | text        | Name of a package
+version (pk)      | text        | The current version number or `latest`
+previous_version  | text        | The previous version number
 
 ### Release Line Dependents (`release_line_dep`)
 
@@ -137,11 +142,21 @@ what needs to be deployed, considering all its dependents as well.
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
-pkg (pk)          |   text      | Name of a package
-previousVersion   |   text      | The previous version number
-version           |   text      | The current version number
-dependent         |   text      | The dependent package
-dependentVersion  |   text      | The dependent package version
+pkg (pk)          | text        | Name of a package
+version (pk)      | text        | The current version number
+previous_version  | text        | The previous version number
+dependent (ck)    | text        | The dependent package
+dependent_version | text        | The dependent package version
+
+### Release Line Head (`release_line_head`)
+
+Represents the head release-line for a given package.
+
+Column            | Type        | Summary
+----------------- | ----------- | ------------
+pkg (pk)          | text        | Name of a package
+previous_version  | text        | The previous version number
+version           | text        | The current version number
 
 ### Version (`version`)
 
@@ -171,7 +186,7 @@ Examples of `package.json`
 
 Column               | Type            | Summary
 -------------------- | --------------- | ------------
-name                 | text            | Name of a package (Primary Key)
+name (pk)            | text            | Name of a package
 version              | text            | Version of a package
 description          | text            | Package description
 main                 | text            | Export file of a package
@@ -188,6 +203,18 @@ dependencies         | map<text, text> | Deps of package
 dev_dependencies     | map<text, text> | DevDeps of package
 peer_dependencies    | map<text, text> | peerDeps of package
 optional_dependencies| map<text, text> | any optional dependencies
+
+### Package Cache (`package_cache`)
+
+Contains the same data as the `package` table with one additional column and
+different partitioning and clustering keys
+
+Column               | Type            | Summary
+-------------------- | --------------- | ------------
+partitioner (pk)     | text            | A generated partition key
+name (ck)            | text            | Name of a package
+
+All other columns are the same as in `package`
 
 ## Test
 
