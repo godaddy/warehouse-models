@@ -6,8 +6,8 @@
 [![Build Status](https://travis-ci.org/warehouseai/warehouse-models.svg?branch=master)](https://travis-ci.org/warehouseai/warehouse-models)
 [![Dependencies](https://img.shields.io/david/warehouseai/warehouse-models.svg?style=flat-square)](https://github.com/warehouseai/warehouse-models/blob/master/package.json)
 
-Data models for [Warehouse.ai]. Built on top of [Cassandra] and
-[datastar].
+Data models for [Warehouse.ai]. Built on top of [dynamodb] and
+[dynastar].
 
 ## Install
 
@@ -18,14 +18,14 @@ npm install --save warehouse-models
 ## Usage
 
 All of the objects returned from this module have the same api as
-[`datastar`][datastar] with the schemas as mentioned later.
+[`dynastar`][dynastar] with the schemas as mentioned later.
 
 ```js
-const datastar = require('datastar')({ /* connection config */ }).connect();
-const models = require('warehouse-models')(datastar);
+const dynamo = require('dynamodb')
+const models = require('warehouse-models')(dynamo);
 
 ...
-// from datastar.define we get...
+// from passing dynamodb.define to the constructor of dynastar we get...
 const Build = models.Build;
 const Version = models.Version;
 ...
@@ -37,7 +37,14 @@ Build.findFirst({ ... }, function (err, data) { .... });
 ## API
 
 All schemas for the API documentation are written using
-[`datastar`'s][datastar] notation.
+[`dynamodb`'s][dynamodb] notation.
+
+The following sections contain the column/attribute mappings for each table.
+
+Legend:
+
+(pk) - partition-key
+(sk) - sort/range key
 
 ### Build (`build`)
 
@@ -45,19 +52,19 @@ Represent an individual build of a package.
 
 Column             | Type             | Summary
 ------------------ | ---------------- | ------------
-env (pk)           | text             | What environment is this build made for (dev, test, etc.)
-name (pk)          | text             | What package has been built
-version (pk)       | text             | What version of a package does this build represent
-build_id           | text             | A build's unique id
-previous_build_id  | text             | Hold a reference to the previous build id
-rollback_build_ids | map<text, text>  | timestamp string mapped to the rollback id
-locale (ck)        | text             | What locale this was built for
-create_date        | timestamp        | Time of creation
-value              | text             | ???
-cdn_url            | text             | URL of CDN to be used as a base for all the artifacts
-fingerprints       | set<text>        | Primary keys for `build_files`, represents the unique contents of the file
-artifacts          | set<text>        | fingerprint/file-name
-recommended        | set<text>        | Possible reduced set of artifacts based on a build's configuration
+key (pk)           | string           | `${name}!${env}!${version}`
+env                | string           | What environment is this build made for (dev, test, etc.)
+name               | string           | What package has been built
+version            | string           | What version of a package does this build represent
+buildId            | string           | A build's unique id
+previousBuildId    | string           | Hold a reference to the previous build id
+rollbackBuildIds   | map              | timestamp string mapped to the rollback id
+locale (sk)        | string           | What locale this was built for
+createDate         | string           | `dynamodb`'s createdAt
+cdnUrl             | string           | URL of CDN to be used as a base for all the artifacts
+fingerprints       | stringSet        | Primary keys for `build_files`, represents the unique contents of the file
+artifacts          | stringSet        | fingerprint/file-name
+recommended        | stringSet        | Possible reduced set of artifacts based on a build's configuration
 
 ### Build File (`build_file`)
 
@@ -66,19 +73,16 @@ entire package.
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
-fingerprint (pk)  | text        | The actual fingerprint of a file, like a md5 hash etc.
-build_id          | text        | The build_id associated with the build file
-url               | text        | CDN URL for the build_file
-create_date       | timestamp   | Time of creation
-env               | text        | What environment is this file built for
-locale            | text        | What locale was this file built for
-name              | text        | Name of a built file
-version           | text        | Version of the package the file is built for
-extension         | text        | .js, .css. resource type extension
-source            | blob        | Entire source of a built file
-sourcemap         | blob        | Sourcemap of a built file
-shrinkwrap        | json        | JSON of package requirements
-filename          | text        | given filename for the build-file
+fingerprint (pk)  | string      | The actual fingerprint of a file, like a md5 hash etc.
+buildId           | string      | The build_id associated with the build file
+url               | string      | CDN URL for the build_file
+createDate        | string      | `dynamodb`'s createdAt
+env               | string      | What environment is this file built for
+locale            | string      | What locale was this file built for
+name              | string      | Name of a built file
+version           | string      | Version of the package the file is built for
+extension         | string      | .js, .css. resource type extension
+filename          | string      | given filename for the build-file
 
 ### Build Head (`build_head`)
 
@@ -87,19 +91,20 @@ On an `npm install`, the env will have to be passed in.
 
 Column             | Type             | Summary
 ------------------ | ---------------- | ------------
-name (pk)          | text             | What package has been build
-env (pk)           | text             | What environment is this build made for (dev, test, etc.)
-build_id           | text             | A build's unique id
-previous_build_id  | text             | Hold a reference to the previous build id
-rollback_build_ids | map<text, text>  | timestamp string mapped to the rollback id
-create_date        | timestamp        | Time of creation
-udpate_date        | timestamp        | Time of update
-version            | text             | What version of a package does this build represent
-locale (ck)        | text             | What locale this was built for
-cdn_url            | text             | URL of CDN to be used as a base for all the artifacts
-fingerprints       | set<text>        | Primary keys for `build_files`, represents the unique contents of the file
-artifacts          | set<text>        | fingerprint/file-name
-recommended        | set<text>        | Possible reduced set of artifacts based on a build's configuration
+key (pk)           | string           | `${name}!${env}!${version}`
+name               | string           | What package has been build
+env                | string           | What environment is this build made for (dev, test, etc.)
+buildId            | string           | A build's unique id
+previousBuildId    | string           | Hold a reference to the previous build id
+rollbackBuildIds   | map              | timestamp string mapped to the rollback id
+createDate         | string           | `dynamodb`'s createdAt
+udpateDate         | string           | `dynamodb`'s updatedAt
+version            | string           | What version of a package does this build represent
+locale (sk)        | string           | What locale this was built for
+cdnUrl             | string           | URL of CDN to be used as a base for all the artifacts
+fingerprints       | stringSet        | Primary keys for `build_files`, represents the unique contents of the file
+artifacts          | stringSet        | fingerprint/file-name
+recommended        | stringSet        | Possible reduced set of artifacts based on a build's configuration
 
 ### Dependent (`dependent`)
 
@@ -109,8 +114,8 @@ every publish.**
 
 Column           | Type          | Summary
 ---------------- | ------------- | ------------
-name (pk)        | text          | Name of a package
-dependents       | set(text)     | Name of packages are **dependent on me**
+name (pk)        | string        | Name of a package
+dependents       | stringSet     | Name of packages are **dependent on me**
 
 ### Dependent Of (`dependent_of`)
 
@@ -119,8 +124,8 @@ parent is.
 
 Column           | Type          | Summary
 ---------------- | ------------- | ------------
-pkg (pk)         | text          | Name of a package
-dependent_of     | text          | Name of the parent package
+pkg (pk)         | string        | Name of a package
+dependentOf      | string        | Name of the parent package
 
 ### Release Line (`release_line`)
 
@@ -130,9 +135,10 @@ what needs to be deployed, considering all its dependents as well.
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
-pkg (pk)          | text        | Name of a package
-version (pk)      | text        | The current version number or `latest`
-previous_version  | text        | The previous version number
+key (pk)          | string      | `${pkg}!${version}`
+pkg               | string      | Name of a package
+version           | string      | The current version number or `latest`
+previousVersion   | string      | The previous version number
 
 ### Release Line Dependents (`release_line_dep`)
 
@@ -142,11 +148,12 @@ what needs to be deployed, considering all its dependents as well.
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
-pkg (pk)          | text        | Name of a package
-version (pk)      | text        | The current version number
-previous_version  | text        | The previous version number
-dependent (ck)    | text        | The dependent package
-dependent_version | text        | The dependent package version
+key (pk)          | string      | `${pkg}!${version}`
+pkg               | string      | Name of a package
+version           | string      | The current version number
+previousVersion   | string      | The previous version number
+dependent (sk)    | string      | The dependent package
+dependentVersion  | string      | The dependent package version
 
 ### Release Line Head (`release_line_head`)
 
@@ -154,9 +161,9 @@ Represents the head release-line for a given package.
 
 Column            | Type        | Summary
 ----------------- | ----------- | ------------
-pkg (pk)          | text        | Name of a package
-previous_version  | text        | The previous version number
-version           | text        | The current version number
+pkg (pk)          | string      | Name of a package
+previousVersion   | string      | The previous version number
+version           | string      | The current version number
 
 ### Version (`version`)
 
@@ -167,10 +174,9 @@ occur against the version table afterwards to send down the `package.json`.
 
 Column           | Type        | Summary
 ---------------- | ----------- | ------------
-version_id (pk)  | text        | name@version (`email@2.1`)
-name             | text        | Name of a package
-version          | text        | Version of a package
-value            | text        | Full json sent of an npm publish
+name (pk)        | string      | Name of a package
+version (sk)     | string      | Version of a package
+value            | string      | Full json sent of an npm publish
 
 ### Package (`package`)
 
@@ -186,39 +192,27 @@ Examples of `package.json`
 
 Column               | Type            | Summary
 -------------------- | --------------- | ------------
-name (pk)            | text            | Name of a package
-version              | text            | Version of a package
-description          | text            | Package description
-main                 | text            | Export file of a package
-git_head             | text            | HEAD git sha of package
-extended             | json            | object of any other properties we have
-keywords             | set<text>       | package.json keywords array
-bundled_dependencies | set<text>       | any bundled dependencies of a package
-dist_tags            | map<text, text> | Mapping of tag to version e.g. `{ "production": "1.1.0" }`
-envs                 | map<text, text> | ?
-metadata             | map<text, text> | ?
-config               | map<text, text> | Specific configuration for package
-repository           | map<text, text> | Repo config of package.json
-dependencies         | map<text, text> | Deps of package
-dev_dependencies     | map<text, text> | DevDeps of package
-peer_dependencies    | map<text, text> | peerDeps of package
-optional_dependencies| map<text, text> | any optional dependencies
+name (pk)            | string          | Name of a package
+version              | string          | Version of a package
+description          | string          | Package description
+main                 | string          | Export file of a package
+gitHead              | string          | HEAD git sha of package
+extended             | map             | object of any other properties we have
+keywords             | stringSet       | package.json keywords array
+bundledDependencies  | stringSet       | any bundled dependencies of a package
+distTags             | map             | Mapping of tag to version e.g. `{ "production": "1.1.0" }`
+envs                 | map             | ?
+metadata             | map             | ?
+config               | map             | Specific configuration for package
+repository           | map             | Repo config of package.json
+dependencies         | map             | Deps of package
+devDependencies      | map             | DevDeps of package
+peerDependencies     | map             | peerDeps of package
+optionalDependencies | map             | any optional dependencies
 
-### Package Cache (`package_cache`)
+## Test 
 
-Contains the same data as the `package` table with one additional column and
-different partitioning and clustering keys
-
-Column               | Type            | Summary
--------------------- | --------------- | ------------
-partitioner (pk)     | text            | A generated partition key
-name (ck)            | text            | Name of a package
-
-All other columns are the same as in `package`
-
-## Test
-
-Ensure you have [Cassandra] running local.
+Ensure you have [localstack] running local.
 
 ```sh
 npm test
@@ -228,5 +222,6 @@ npm test
 [Express]: https://registry.npmjs.org/express/latest
 [npm]: https://docs.npmjs.com/files/package.json
 [warehouse.ai]: https://github.com/godaddy/warehouse.ai
-[datastar]: https://github.com/godaddy/datastar
-[Cassandra]: https://cassandra.apache.org/
+[dynamodb]: https://www.npmjs.com/package/dynamodb
+[dynastar]: https://github.com/godaddy/dynastar
+[localstack]: https://github.com/localstack/localstack.git
