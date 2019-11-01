@@ -7,5 +7,5 @@
   "version": "2.1",
   "fingerprints": ["a", "a.gz"],
   "artifacts": ["a/email.js"],
-  "recommended": []
+  "recommended": ["a/email.js"]
 }

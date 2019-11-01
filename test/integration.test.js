@@ -1,12 +1,23 @@
 'use strict';
 
 /* eslint max-nested-callbacks: 0 */
-const config = require('./config.json');
-const Datastar = require('datastar');
+var { DynamoDB } = require('aws-sdk');
+var dynamo = require('dynamodb');
+var AwsLiveness = require('aws-liveness');
 const warehouseModels = require('..');
 const assume = require('assume');
 const async = require('async');
 const clone = require('clone');
+
+const region = 'us-east-1';
+const endpoint = 'http://localhost:4569';
+// Need to set some values for these for it to actually work
+process.env.AWS_ACCESS_KEY_ID = 'foobar';
+process.env.AWS_SECRET_ACCESS_KEY = 'foobar';
+
+const dynamoDriver = new DynamoDB({ endpoint, region });
+dynamo.dynamoDriver(dynamoDriver);
+const liveness = new AwsLiveness();
 
 const BuildFixture = require('./fixtures/build.json');
 const BuildFileFixture = require('./fixtures/build-file.json');
@@ -18,11 +29,8 @@ const ReleaseLineDepFixture = require('./fixtures/release-line-dep.json');
 const VersionFixture = require('./fixtures/version.json');
 const PackageFixture = require('./fixtures/package.json');
 
-config.consistency = 'quorum';
-const datastar = new Datastar(config);
-const models = warehouseModels(datastar);
-
-const { Build, BuildFile, BuildHead, Dependent, DependentOf, ReleaseLine, ReleaseLineHead, ReleaseLineDep, Version, Package, PackageCache } = models;
+const models = warehouseModels(dynamo);
+const { Build, BuildFile, BuildHead, Dependent, DependentOf, ReleaseLine, ReleaseLineHead, ReleaseLineDep, Version, Package } = models;
 
 describe('registry-data (integration)', function () {
   function assertAttachment(result) {
@@ -37,16 +45,11 @@ describe('registry-data (integration)', function () {
 
 
   before(function (done) {
-    if (process.env.DEBUG) { // eslint-disable-line no-process-env
-      datastar.connection.on('queryStarted', function () {
-        console.log.apply(console, arguments);
-      });
-    }
-    datastar.connect(done);
-  });
-
-  after(function (done) {
-    datastar.close(done);
+    liveness.waitForServices({
+      clients: [dynamoDriver],
+      waitSeconds: 60
+    }).then(() => done())
+      .catch(done);
   });
 
   describe('models', function () {
@@ -90,16 +93,12 @@ describe('registry-data (integration)', function () {
       BuildFile.findOne({
         fingerprint: BuildFileFixture.fingerprint
       }, function (err, result) {
-        result = BuildFile.deserialize(result);
         assume(err).is.falsey();
         assume(result.buildId).eql(BuildFileFixture.buildId);
         assume(result.env).eql(BuildFileFixture.env);
         assume(result.fingerprint).eql(BuildFileFixture.fingerprint);
         assume(result.name).eql(BuildFileFixture.name);
-        assume(result.source).eql(BuildFileFixture.source);
-        assume(result.sourcemap).eql(BuildFileFixture.sourcemap);
         assume(result.version).eql(BuildFileFixture.version);
-        assume(result.shrinkwrap).eql(BuildFileFixture.shrinkwrap);
         done();
       });
     });
@@ -172,7 +171,7 @@ describe('registry-data (integration)', function () {
       });
     });
 
-    it('finds the build model and can fetch the files', function (done) {
+    it('finds the build model', function (done) {
       Build.findOne(BuildFixture, function (err, result) {
         assume(err).is.falsey();
         assume(result.buildId).eql(BuildFixture.buildId);
@@ -182,17 +181,8 @@ describe('registry-data (integration)', function () {
         assume(result.version).eql(BuildFixture.version);
         assume(result.fingerprints.sort()).eql(BuildFixture.fingerprints.sort());
         assume(result.artifacts.sort()).eql(BuildFixture.artifacts.sort());
-        assume(result.recommended).to.be.an('array');
-
-        result.fetchFiles(function (error, files) {
-          assume(error).is.falsey();
-          assume(files).is.an('array');
-          files.forEach(function (file) {
-            assume(file).is.an('object');
-            assume(file.url).is.a('string');
-          });
-          done();
-        });
+        assume(result.recommended.sort()).eql(BuildFixture.recommended.sort());
+        done();
       });
     });
 
@@ -251,10 +241,7 @@ describe('registry-data (integration)', function () {
     });
 
     it('finds the build_head model', function (done) {
-      BuildHead.findOne({
-        name: BuildHeadFixture.name,
-        env: BuildHeadFixture.env
-      }, function (err, result) {
+      BuildHead.findOne(BuildHeadFixture, function (err, result) {
         assume(err).is.falsey();
         assume(result.buildId).eql(BuildHeadFixture.buildId);
         assume(result.previousBuildId).eql(BuildHeadFixture.previousBuildId);
@@ -264,23 +251,15 @@ describe('registry-data (integration)', function () {
         assume(result.fingerprints.sort()).eql(BuildHeadFixture.fingerprints.sort());
         assume(result.artifacts.sort()).eql(BuildHeadFixture.artifacts.sort());
         assume(result.recommended).to.be.an('array');
-
-        result.fetchFiles(function (error, files) {
-          assume(error).is.falsey();
-          assume(files).is.an('array');
-          files.forEach(function (file) {
-            assume(file).is.an('object');
-            assume(file.url).is.a('string');
-          });
-          done();
-        });
+        done();
       });
     });
 
     it('returns a falsey value for an unknown id', function (done) {
       BuildHead.findOne({
         name: 'email',
-        env: 'proddd'
+        env: 'proddd',
+        locale: 'en-US'
       }, function (err, result) {
         if (err) return done(err);
         assume(result).is.falsey();
@@ -289,10 +268,7 @@ describe('registry-data (integration)', function () {
     });
 
     it('deletes the build_head model', function (done) {
-      BuildHead.remove({
-        name: BuildHeadFixture.name,
-        env: BuildHeadFixture.env
-      }, function (err) {
+      BuildHead.remove(BuildHeadFixture, function (err) {
         assume(err).is.falsey();
         done();
       });
@@ -534,11 +510,7 @@ describe('registry-data (integration)', function () {
     });
 
     it('finds the dependent_of model', function (done) {
-      ReleaseLineDep.findOne({
-        pkg: ReleaseLineDepFixture.pkg,
-        version: ReleaseLineDepFixture.version
-      }, function (err, result) {
-
+      ReleaseLineDep.findOne(ReleaseLineDepFixture, function (err, result) {
         assume(err).is.falsey();
         assume(result.pkg).eql(ReleaseLineDepFixture.pkg);
         assume(result.previousVersion).eql(ReleaseLineDepFixture.previousVersion);
@@ -550,10 +522,8 @@ describe('registry-data (integration)', function () {
     });
 
     it('returns a falsey value for an unknown id', function (done) {
-      ReleaseLineDep.findOne({
-        pkg: ReleaseLineDepFixture.pkg + 'bah',
-        version: ReleaseLineDepFixture.version
-      }, function (err, result) {
+      const BadReleaseLineDepFixture = { ... ReleaseLineDepFixture, pkg: ReleaseLineDepFixture.pkg + 'bah' };
+      ReleaseLineDep.findOne(BadReleaseLineDepFixture, function (err, result) {
         if (err) return done(err);
         assume(result).is.falsey();
         done();
@@ -561,10 +531,7 @@ describe('registry-data (integration)', function () {
     });
 
     it('deletes the dependent_of model', function (done) {
-      ReleaseLineDep.remove({
-        pkg: ReleaseLineDepFixture.pkg,
-        version: ReleaseLineDepFixture.version
-      }, function (err) {
+      ReleaseLineDep.remove(ReleaseLineDepFixture, function (err) {
         assume(err).is.falsey();
         done();
       });
@@ -592,20 +559,16 @@ describe('registry-data (integration)', function () {
     });
 
     it('finds the version model', function (done) {
-      Version.findOne({
-        versionId: VersionFixture.versionId
-      }, function (err, result) {
+      Version.findOne(VersionFixture, function (err, result) {
         assume(err).is.falsey();
-        assume(result.versionId).eql(VersionFixture.versionId);
+        assume(result.name).eql(VersionFixture.name);
         assume(result.value).eql(VersionFixture.value);
         done();
       });
     });
 
     it('can fetch the binary blob of versioned content', function (done) {
-      Version.findOne({
-        versionId: VersionFixture.versionId
-      }, function (err, result) {
+      Version.findOne(VersionFixture, function (err, result) {
         assume(err).is.falsey();
 
         //
@@ -613,7 +576,7 @@ describe('registry-data (integration)', function () {
         //
         result.name = 'minimize';
         result.version = '1.7.0';
-        result.getAttachment('http://registry.npmjs.org/', function (error, result) {
+        Version.getAttachment({ pkg: result, read: 'http://registry.npmjs.org/' }, function (error, result) {
           assume(error).is.falsey();
           assertAttachment(result);
           done();
@@ -621,9 +584,10 @@ describe('registry-data (integration)', function () {
       });
     });
 
-    it('returns a falsey value for an unknown id', function (done) {
+    it('returns a falsey value for an non-existent name', function (done) {
       Version.findOne({
-        versionId: VersionFixture.versionId + '1'
+        name: 'fakename',
+        version: '1.5'
       }, function (err, result) {
         if (err) return done(err);
         assume(result).is.falsey();
@@ -632,9 +596,7 @@ describe('registry-data (integration)', function () {
     });
 
     it('deletes the version model', function (done) {
-      Version.remove({
-        versionId: VersionFixture.versionId
-      }, function (err) {
+      Version.remove(VersionFixture, function (err) {
         assume(err).is.falsey();
         done();
       });
@@ -644,17 +606,15 @@ describe('registry-data (integration)', function () {
   describe('package', function () {
 
     after(function (done) {
-      async.parallel([
-        Package.dropTables.bind(Package),
-        PackageCache.dropTables.bind(PackageCache)
-      ], done);
+      Package.dropTables(done);
     });
 
-    it('ensures there is a package and package_cache table', function (done) {
-      async.parallel([
-        Package.ensureTables.bind(Package),
-        PackageCache.ensureTables.bind(PackageCache)
-      ], done);
+
+    it('ensures there is a package', function (done) {
+      Package.ensureTables(function (err) {
+        assume(err).is.falsey();
+        done();
+      });
     });
 
     it('creates a package model', function (done) {
@@ -678,23 +638,6 @@ describe('registry-data (integration)', function () {
       }, function (err, result) {
         assume(err).is.falsey();
         assertPackage(result);
-        done();
-      });
-    });
-
-    //
-    // So findOne doesnt work here, not sure why?? getting an error from the
-    // driver about it expecting a UUID? Can clustering key not be `text`?
-    // Doesnt really matter for our use case though
-    //
-    it('returns the same package from PackageCache', function (done) {
-      PackageCache.findAll({
-        conditions: {
-          partitioner: 'cached'
-        }
-      }, function (err, results) {
-        assume(err).is.falsey();
-        assertPackage(results[0]);
         done();
       });
     });
