@@ -34,6 +34,14 @@ Build.findFirst({ ... }, function (err, data) { .... });
 
 ```
 
+*** Note that with the new dynamo release of `warehouse-models` (V.6.0.0), you will to need to provide a value for `locale` as part of the argument to `findOne`. 
+
+```js
+Build.findOne({ name: 'email', env: 'prod'}, function (err, data) { .... }); // pre 6.0.0
+Build.findOne({ name: 'email', env: 'prod', locale: 'en-US' }, function (err, data) { .... }); // post 6.0.0
+```
+
+
 ## API
 
 All schemas for the API documentation are written using
