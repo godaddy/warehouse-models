@@ -28,7 +28,7 @@
     "aws-liveness": "^1.1.0",
     "babel-eslint": "^10.0.0",
     "clone": "^2.1.2",
-    "dynamodb": "^1.2.1",
+    "dynamodb-x": "^1.2.3",
     "eslint": "^5.16.0",
     "eslint-config-godaddy": "^2.1.1",
     "eslint-plugin-json": "^1.4.0",

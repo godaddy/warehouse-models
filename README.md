@@ -21,7 +21,7 @@ All of the objects returned from this module have the same api as
 [`dynastar`][dynastar] with the schemas as mentioned later.
 
 ```js
-const dynamo = require('dynamodb')
+const dynamo = require('dynamodb-x')
 const models = require('warehouse-models')(dynamo);
 
 ...

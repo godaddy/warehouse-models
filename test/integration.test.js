@@ -2,7 +2,7 @@
 
 /* eslint max-nested-callbacks: 0 */
 var { DynamoDB } = require('aws-sdk');
-var dynamo = require('dynamodb');
+var dynamo = require('dynamodb-x');
 var AwsLiveness = require('aws-liveness');
 const warehouseModels = require('..');
 const assume = require('assume');
