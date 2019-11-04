@@ -1,9 +1,12 @@
 'use strict';
 
 var assume = require('assume');
+var clone = require('clone');
 var models = require('..');
 var dynamo = require('dynamodb');
 var Dynastar = require('dynastar');
+var fixtures = require('./fixtures');
+var packageStrip = fixtures.packageStrip;
 
 describe('warehouse-models (unit)', function () {
   var dal;
@@ -27,4 +30,28 @@ describe('warehouse-models (unit)', function () {
   it('should have an `drop` function', function () {
     assume(dal.drop).is.a('function');
   });
+
+  it('should contain a defined function on the Package model that should strip values', function () {
+    var secondFixture = clone(packageStrip);
+    assume(dal.Package.fromPublish).is.a('function');
+    assume(dal.Package.deserialize).is.a('function');
+    assume(dal.Package.fromPublish({ payload: packageStrip.before })).to.eql(packageStrip.after);
+    assume(dal.Package.deserialize({ results: secondFixture.after })).to.eql(
+      dal.Package.deserialize(
+        { results: dal.Package.fromPublish({ payload: secondFixture.before }) }
+      )
+    );
+    assume(packageStrip.before.versions['1.0.0'].config).deep.equals({ locales: ['en-US'] });
+  });
+
+  it('should have a method to fetch the binary blob of versioned content', function () {
+    assume(dal.Version.getAttachment).is.a('function');
+    assume(dal.Version.getAttachment.length).to.equal(2);
+  });
+
+  it('should have a method to fetch and create a build payload from versioned content', function () {
+    assume(dal.Version.forBuild).is.a('function');
+    assume(dal.Version.forBuild.length).to.equal(2);
+  });
+
 });

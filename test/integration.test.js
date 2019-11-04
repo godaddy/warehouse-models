@@ -636,6 +636,7 @@ describe('registry-data (integration)', function () {
       Package.findOne({
         name: PackageFixture.name
       }, function (err, result) {
+        result = Package.deserialize({ results: result });
         assume(err).is.falsey();
         assertPackage(result);
         done();
@@ -646,6 +647,7 @@ describe('registry-data (integration)', function () {
       Package.findOne({
         name: 'what'
       }, function (err, result) {
+        result = Package.deserialize({ results: result });
         if (err) return done(err);
         assume(result).is.falsey();
         done();
