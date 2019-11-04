@@ -35,11 +35,9 @@ describe('warehouse-models (unit)', function () {
     var secondFixture = clone(packageStrip);
     assume(dal.Package.fromPublish).is.a('function');
     assume(dal.Package.deserialize).is.a('function');
-    assume(dal.Package.fromPublish({ payload: packageStrip.before })).to.eql(packageStrip.after);
-    assume(dal.Package.deserialize({ results: secondFixture.after })).to.eql(
-      dal.Package.deserialize(
-        { results: dal.Package.fromPublish({ payload: secondFixture.before }) }
-      )
+    assume(dal.Package.fromPublish(packageStrip.before)).to.eql(packageStrip.after);
+    assume(dal.Package.deserialize(secondFixture.after)).to.eql(
+      dal.Package.deserialize(dal.Package.fromPublish(secondFixture.before))
     );
     assume(packageStrip.before.versions['1.0.0'].config).deep.equals({ locales: ['en-US'] });
   });
