@@ -7,5 +7,5 @@
   "locale": "en-US",
   "fingerprints": ["b.gz", "b"],
   "artifacts": ["b/email.js"],
-  "recommended": []
+  "recommended": ["b/email.js"]
 }

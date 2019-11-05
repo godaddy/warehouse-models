@@ -3,48 +3,32 @@
 var assume = require('assume');
 var clone = require('clone');
 var models = require('..');
-var mocks = require('datastar-test-tools').mocks;
-var helpers = require('datastar-test-tools').helpers;
+var dynamo = require('dynamodb-x');
+var Dynastar = require('dynastar');
 var fixtures = require('./fixtures');
-
 var packageStrip = fixtures.packageStrip;
-var buildFileFix = fixtures.buildFile;
 
 describe('warehouse-models (unit)', function () {
   var dal;
   beforeEach(function () {
-    var datastar = helpers.connectDatastar({ mock: true }, mocks.datastar());
-    dal = models(datastar);
+    dal = models(dynamo);
   });
 
   it('should return the appropriate object', function () {
-    assume(dal.Build).is.a('function');
-    assume(dal.BuildFile).is.a('function');
-    assume(dal.BuildHead).is.a('function');
-    assume(dal.Package).is.a('function');
-    assume(dal.PackageCache).is.a('function');
-    assume(dal.Version).is.a('function');
-    assume(dal.Dependent).is.a('function');
+    assume(dal.Build).is.instanceof(Dynastar);
+    assume(dal.BuildFile).is.instanceof(Dynastar);
+    assume(dal.BuildHead).is.instanceof(Dynastar);
+    assume(dal.Package).is.instanceof(Dynastar);
+    assume(dal.Version).is.instanceof(Dynastar);
+    assume(dal.Dependent).is.instanceof(Dynastar);
   });
 
   it('should have an `ensure` function', function () {
     assume(dal.ensure).is.a('function');
   });
 
-  it('should contain a deserialize function on the BuildFile model that turns Buffers -> strings', function () {
-    assume(dal.BuildFile.deserialize).is.a('function');
-    var first = dal.BuildFile.deserialize(buildFileFix.array);
-    assume(first).is.an('array');
-    assume(first[0].source).is.a('string');
-    var second = dal.BuildFile.deserialize(buildFileFix.object);
-    assume(second).is.an('object');
-    assume(second.source).is.a('string');
-    assume(second.sourcemap).is.a('string');
-  });
-
-  it('should return a dal whos Build and BuildHead prototype has a fetchFiles function', function () {
-    assume(dal.Build.prototype.fetchFiles).is.a('function');
-    assume(dal.BuildHead.prototype.fetchFiles).is.a('function');
+  it('should have an `drop` function', function () {
+    assume(dal.drop).is.a('function');
   });
 
   it('should contain a defined function on the Package model that should strip values', function () {
@@ -59,13 +43,13 @@ describe('warehouse-models (unit)', function () {
   });
 
   it('should have a method to fetch the binary blob of versioned content', function () {
-    assume(dal.Version.prototype.getAttachment).is.a('function');
-    assume(dal.Version.prototype.getAttachment.length).to.equal(2);
+    assume(dal.Version.getAttachment).is.a('function');
+    assume(dal.Version.getAttachment.length).to.equal(2);
   });
 
   it('should have a method to fetch and create a build payload from versioned content', function () {
-    assume(dal.Version.prototype.forBuild).is.a('function');
-    assume(dal.Version.prototype.forBuild.length).to.equal(2);
+    assume(dal.Version.forBuild).is.a('function');
+    assume(dal.Version.forBuild.length).to.equal(2);
   });
 
 });

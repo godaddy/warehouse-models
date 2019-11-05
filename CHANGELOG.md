@@ -1,5 +1,6 @@
 # Changelog
 
+- Convert datastar models to dynastar models
 - README update, synchronized readme with actual code, minor formatting
 - [#6] Documentation and security
   - Add badges
