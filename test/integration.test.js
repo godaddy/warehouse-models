@@ -267,6 +267,20 @@ describe('registry-data (integration)', function () {
       });
     });
 
+    it('ignores version to always return latest', function (done) {
+      BuildHead.findOne({
+        name: 'email',
+        env: 'test',
+        locale: 'en-US',
+        version: '4.2' // is 2.1 in fixture
+      }, function (err, result) {
+        if (err) return done(err);
+        assume(err).is.falsey();
+        assume(result.version).eql(BuildHeadFixture.version);
+        done();
+      });
+    });
+
     it('deletes the build_head model', function (done) {
       BuildHead.remove(BuildHeadFixture, function (err) {
         assume(err).is.falsey();
