@@ -1,7 +1,9 @@
 # Changelog
 
+### 6.0.1
+
 - [#12] Ignore version for `buildHead` key.
- 
+
 ### 6.0.0
 - Convert datastar models to dynastar models
 - README update, synchronized readme with actual code, minor formatting
