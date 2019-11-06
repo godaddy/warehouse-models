@@ -1,5 +1,7 @@
 # Changelog
 
+- [#12] Ignore version for `buildHead` key.
+ 
 ### 6.0.0
 - Convert datastar models to dynastar models
 - README update, synchronized readme with actual code, minor formatting
@@ -9,3 +11,4 @@
   - Update dependencies (minor/patch) to mitigate security warnings
 
 [#6]: https://github.com/warehouseai/warehouse-models/pull/6
+[#12]: https://github.com/warehouseai/warehouse-models/pull/12
