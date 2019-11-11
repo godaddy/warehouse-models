@@ -1,5 +1,7 @@
 # Changelog
 
+- [#13] Do not copy falsey values to `Package.extended`.
+
 ### 6.0.1
 
 - [#12] Ignore version for `buildHead` key.
@@ -14,3 +16,4 @@
 
 [#6]: https://github.com/warehouseai/warehouse-models/pull/6
 [#12]: https://github.com/warehouseai/warehouse-models/pull/12
+[#13]: https://github.com/warehouseai/warehouse-models/pull/13
