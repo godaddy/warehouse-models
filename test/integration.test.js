@@ -657,6 +657,28 @@ describe('registry-data (integration)', function () {
       });
     });
 
+    it('will not set falsy values on `extended`', function (done) {
+      const fixture = {
+        'dist-tags': {
+          latest: '0.0.1'
+        },
+        'versions': {
+          '0.0.1': {
+            author: '',
+            ...PackageFixture
+          }
+        }
+      };
+
+      const payload = Package.fromPublish(fixture);
+      assume(payload.extended).to.not.have.property('author');
+
+      Package.create(payload, function (err) {
+        assume(err).is.falsey();
+        done();
+      });
+    });
+
     it('returns an a falsey value for an unknown id', function (done) {
       Package.findOne({
         name: 'what'
