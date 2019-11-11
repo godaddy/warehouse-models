@@ -1,5 +1,7 @@
 # Changelog
 
+### 6.0.2
+
 - [#13] Do not copy falsey values to `Package.extended`.
 
 ### 6.0.1
