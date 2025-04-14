@@ -1,3 +1,6 @@
+> [!WARNING]
+> !!!! THIS LIBRARY IS NO LONGER UNDER DEVELOPMENT AND IS DEPRECATED/RETIRED
+
 # `warehouse-models`
 
 [![Version npm](https://img.shields.io/npm/v/warehouse-models.svg?style=flat-square)](https://www.npmjs.com/package/warehouse-models)
